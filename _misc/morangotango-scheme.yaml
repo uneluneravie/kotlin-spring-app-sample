@@ -1,0 +1,432 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'Morangotango API'
+servers:
+  - url: '{{baseUrl}}'
+paths:
+  /users:
+    get:
+      summary: 'Returns details about the logged in user'
+      operationId: getUser
+      tags:
+        - user
+      responses:
+        '200':
+          description: 'Details about the logged in user'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+            description: 'Token is missing or is invalid'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+  /recipes:
+    post:
+      summary: 'Registers recipe'
+      operationId: createRecipe
+      tags:
+        - recipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeRequest'
+      responses:
+        '201':
+          description: 'Details about the recipe'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        '400':
+            description: 'Bad request (missing required parameters)'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '401':
+            description: 'Token is missing or is invalid'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '500':
+            description: 'Internal Server Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+  /recipes/{id}:
+    get:
+      summary: 'Returns details about a particular recipe'
+      operationId: detailRecipe
+      tags:
+        - recipe
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Details about a recipe by ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        '401':
+            description: 'Token is missing or is invalid'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '404':
+            description: 'Resource not found'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+    put:
+      summary: 'Edits recipe'
+      operationId: updateRecipe
+      tags:
+        - recipe
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeRequest'
+      responses:
+        '200':
+          description: 'Details about the recipe'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        '401':
+            description: 'Token is missing or is invalid'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '404':
+            description: 'Resource not found'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '500':
+            description: 'Internal Server Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+    delete:
+      summary: 'Delete recipe'
+      operationId: deleteRecipe
+      tags:
+        - recipe
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+            description: 'No Content'
+        '401':
+            description: 'Token is missing or is invalid'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '500':
+            description: 'Internal Server Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+  /recipes/page:
+    post:
+      summary: 'Returns a paginated list of recipes'
+      operationId: listRecipes
+      tags:
+        - recipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeSearchRequest'
+      responses:
+        '200':
+          description: 'Details about the logged in user'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeSearchResponse'
+        '204':
+            description: 'No Content'
+            content:
+              application/json:
+                schema:
+                    type: 'array'
+                    items: {}
+        '400':
+            description: 'Bad request'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '401':
+            description: 'Token is missing or is invalid'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '500':
+            description: 'Internal Server Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    RecipeRequest:
+      type: object
+      required:
+        - name
+        - ingredients
+        - steps
+      properties:
+        name:
+          type: string
+        difficultyRate:
+          type: integer
+          minimum: 0
+          maximum: 5
+        spentTime:
+          type: integer
+          minimum: 1
+        servings:
+          type: integer
+          minimum: 1
+        tags:
+          type: array
+          items:
+            type: string
+            enum: [
+                "BEVERAGE",
+                "PASTA",
+                "MEAT",
+                "VEGAN",
+                "JAPANESE",
+                "INDIAN"
+            ]
+        ingredients:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/RecipeIngredientDTO'
+        steps:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/RecipeStepDTO'
+    RecipeIngredientDTO:
+      type: object
+      required:
+        - ingredientId
+        - amount
+      properties:
+        ingredientId:
+          type: integer
+        amount:
+          type: integer
+          minimum: 0
+    RecipeStepDTO:
+      type: object
+      required:
+        - position
+        - description
+      properties:
+        id:
+          type: integer
+        position:
+          type: integer
+        description:
+          type: string
+    RecipeSearchRequest:
+      type: object
+      properties:
+        pageable:
+          type: object
+          $ref: '#/components/schemas/PageRequest'
+        filters:
+          type: object
+          $ref: '#/components/schemas/RecipeFiltersRequest'
+    PageRequest:
+      type: object
+      required:
+        - page
+        - size
+      properties:
+        page:
+          type: integer
+          description: Filter for page number
+          default: '0'
+        size:
+          type: integer
+          description: Filter for page size
+          default: '5'
+        sort:
+          type: string
+          description: Filter for page sorting
+    RecipeFiltersRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Filter for recipe name or part of it's name
+        ingredients:
+          type: array
+          items:
+            type: object
+            description: List of ingredients IDs that limit recipe's ingredients
+            $ref: '#/components/schemas/RecipeIngredientFilterRequest'
+        tag:
+          type: string
+          description: Filter for recipe tag. Initially the tag list will be an enum. Some possible values are listed above.
+          enum: [
+            "BEVERAGE",
+            "PASTA",
+            "MEAT",
+            "VEGAN",
+            "JAPANESE",
+            "INDIAN"
+          ]
+    RecipeIngredientFilterRequest:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          description: Signals which type of filter will be applied to the ingredients list. 'CONTAIN' - will list recipes that contain the majority of the listed ingredients (ordered by the matching correspondency). 'LIMIT' - will list recipes whose ingredients are limited to the ones listed. 'EXCLUDE' - will list recipes that do not contain the ingredients listed.
+          enum: [
+            "CONTAIN",
+            "LIMIT",
+            "EXCLUDE"
+          ]
+        amount:
+          type: integer
+          description: Ingredient's maximum amount
+          default: ∞
+    UserResponse:
+      type: object
+      required:
+        - id
+        - username
+        - email
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    RecipeResponse:
+      type: object
+      required:
+        - id
+        - username
+        - score
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        score:
+          type: number
+          format: float32
+          minimum: 0
+          maximum: 5
+        difficultyRate:
+          type: integer
+          minimum: 0
+          maximum: 5
+        spentTime:
+          type: integer
+          minimum: 1
+        servings:
+          type: integer
+          minimum: 1
+        ingredients:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/RecipeIngredientDTO'
+        steps:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/RecipeStepDTO'
+    RecipeSearchResponse:
+      type: object
+      required:
+        - content
+        - pageable
+      properties:
+        content:
+            type: array
+            items:
+                type: object
+                $ref: '#/components/schemas/RecipeResponse'
+        pageable:
+            type: object
+            description: Spring Boot default pageable implementation
+            properties:
+              page:
+                type: integer
+                default: '0'
+              size:
+                type: integer
+                default: '5'
+              sort:
+                type: string
+              total:
+                type: integer
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+security:
+  - BasicAuth: []

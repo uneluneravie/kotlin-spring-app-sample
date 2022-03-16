@@ -1,0 +1,33 @@
+server:
+  port: 8887
+  address: 0.0.0.0
+
+logging:
+  level:
+    org:
+      hibernate: ${LOG_LEVEL_HIBERNATE:DEBUG}
+      springframework: ${LOG_LEVEL_SPRING:DEBUG}
+    br:
+      com:
+        morangotango: ${LOG_LEVEL_SE:DEBUG}
+
+#spring:
+#  datasource:
+#    url: jdbc:${DB_DRIVER:mysql}://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:devportal}?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
+#    username: ${DB_USERNAME:mgtg}
+#    password: ${DB_PASSWORD:mgtg}
+#    initialization-mode: always
+##    data:
+##      - classpath:data.sql
+#  liquibase:
+#    enabled: ${DB_MIGRATE_ENABLE:false}
+#    change-log: classpath:db/changelog/liquibase-changelog.mysql.sql
+#  jpa:
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: create
+#      naming:
+#        physical-strategy: com.vladmihalcea.hibernate.type.util.CamelCaseToSnakeCaseNamingStrategy
+#    properties:
+#      hibernate:
+#        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.MySQL8Dialect}
